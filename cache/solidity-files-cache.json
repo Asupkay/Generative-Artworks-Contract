@@ -1,43 +1,9 @@
 {
   "_format": "hh-sol-cache-2",
   "files": {
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/hardhat/console.sol": {
-      "lastModificationDate": 1617846082620,
-      "contentHash": "cc4777addd464ea56fa35b1c45df0591",
-      "sourceName": "hardhat/console.sol",
-      "solcConfig": {
-        "version": "0.7.3",
-        "settings": {
-          "optimizer": {
-            "enabled": false,
-            "runs": 200
-          },
-          "outputSelection": {
-            "*": {
-              "*": [
-                "abi",
-                "evm.bytecode",
-                "evm.deployedBytecode",
-                "evm.methodIdentifiers"
-              ],
-              "": [
-                "ast"
-              ]
-            }
-          }
-        }
-      },
-      "imports": [],
-      "versionPragmas": [
-        ">=0.4.22 <0.9.0"
-      ],
-      "artifacts": [
-        "console"
-      ]
-    },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/contracts/GenerativeArtworks.sol": {
-      "lastModificationDate": 1617931708051,
-      "contentHash": "f441cf251aaa7c03cb1f6f03afb35ac5",
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/contracts/GenerativeArtworks.sol": {
+      "lastModificationDate": 1618284143339,
+      "contentHash": "c8474c5831048e710a5f86966b7325b1",
       "sourceName": "contracts/GenerativeArtworks.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -72,8 +38,8 @@
         "GenerativeArtworks"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
-      "lastModificationDate": 1617849501738,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/ERC721.sol": {
+      "lastModificationDate": 1618274973795,
       "contentHash": "8f1c15639d1801a8117bdc64882e710b",
       "sourceName": "@openzeppelin/contracts/token/ERC721/ERC721.sol",
       "solcConfig": {
@@ -115,8 +81,8 @@
         "ERC721"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol": {
-      "lastModificationDate": 1617849501738,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol": {
+      "lastModificationDate": 1618274973815,
       "contentHash": "11629722b0e3c53cb55733af5176cd33",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol",
       "solcConfig": {
@@ -152,8 +118,8 @@
         "ERC721Enumerable"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
-      "lastModificationDate": 1617849501742,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/IERC721.sol": {
+      "lastModificationDate": 1618274973967,
       "contentHash": "93a5aa8a276e028a4f46f22b5d8f7bd3",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721.sol",
       "solcConfig": {
@@ -188,8 +154,8 @@
         "IERC721"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
-      "lastModificationDate": 1617849501742,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol": {
+      "lastModificationDate": 1618274973983,
       "contentHash": "e6d69a0b5b95ac1112eb4746a2d66f3e",
       "sourceName": "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol",
       "solcConfig": {
@@ -222,8 +188,8 @@
         "IERC721Receiver"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol": {
-      "lastModificationDate": 1617849501742,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol": {
+      "lastModificationDate": 1618274973979,
       "contentHash": "75cedcb24edaec014d2071ed59a03ff3",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Metadata.sol",
       "solcConfig": {
@@ -258,8 +224,8 @@
         "IERC721Metadata"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
-      "lastModificationDate": 1617849501742,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol": {
+      "lastModificationDate": 1618274973975,
       "contentHash": "f2ae82a09cc670ca19d644f60990b94d",
       "sourceName": "@openzeppelin/contracts/token/ERC721/extensions/IERC721Enumerable.sol",
       "solcConfig": {
@@ -294,8 +260,8 @@
         "IERC721Enumerable"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/utils/Address.sol": {
-      "lastModificationDate": 1617849501730,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/utils/Address.sol": {
+      "lastModificationDate": 1618274973459,
       "contentHash": "37103cdc416efc2601c6f6734044b559",
       "sourceName": "@openzeppelin/contracts/utils/Address.sol",
       "solcConfig": {
@@ -328,8 +294,8 @@
         "Address"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/utils/Context.sol": {
-      "lastModificationDate": 1617849501731,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/utils/Context.sol": {
+      "lastModificationDate": 1618274973511,
       "contentHash": "bc047f55d4e6dcc5a9c7ee096f530312",
       "sourceName": "@openzeppelin/contracts/utils/Context.sol",
       "solcConfig": {
@@ -362,8 +328,8 @@
         "Context"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
-      "lastModificationDate": 1617849501746,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/utils/Strings.sol": {
+      "lastModificationDate": 1618274974107,
       "contentHash": "e575d915a7dbf0decd510699a7fd53dc",
       "sourceName": "@openzeppelin/contracts/utils/Strings.sol",
       "solcConfig": {
@@ -396,8 +362,8 @@
         "Strings"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
-      "lastModificationDate": 1617849501735,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/utils/introspection/ERC165.sol": {
+      "lastModificationDate": 1618274973663,
       "contentHash": "a9a5319dff9088c6ffe757ea1c2a6729",
       "sourceName": "@openzeppelin/contracts/utils/introspection/ERC165.sol",
       "solcConfig": {
@@ -432,8 +398,8 @@
         "ERC165"
       ]
     },
-    "/media/alex/FCFCDF9CFCDF500E/linux/clamflelmo-contract/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
-      "lastModificationDate": 1617849501741,
+    "/home/alex/Documents/personal/Generative-Artworks-Contract/node_modules/@openzeppelin/contracts/utils/introspection/IERC165.sol": {
+      "lastModificationDate": 1618274973947,
       "contentHash": "9a04322bb8f6b8f2767d8358d1d2537b",
       "sourceName": "@openzeppelin/contracts/utils/introspection/IERC165.sol",
       "solcConfig": {
