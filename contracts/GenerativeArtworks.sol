@@ -4,8 +4,6 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 
 contract GenerativeArtworks is ERC721Enumerable {
-    constructor(string memory _tokenName, string memory _tokenSymbol) ERC721(_tokenName, _tokenSymbol) {}
-
     struct Piece {
         string name;
         string description;
@@ -28,5 +26,24 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(uint256 => uint256) public printIdToPieceId;
     mapping(uint256 => uint256[]) internal pieceIdToPrintIds;
     mapping(uint256 => bytes32) public printIdToHash;
-    mapping(uint256 => bytes32) public hashToPrintId;
+    mapping(uint256 => bytes32) public hashToTokenId;
+
+    modifier onlyValidPrintId(uint256 _printId) {
+        require(_exists(_printId), "Print ID does not exist");
+        _;
+    }
+
+    modifier onlyUnlocked(uint256 _pieceId) {
+        require(!pieces[_pieceId].locked, "Only if unlocked");
+        _;
+    }
+
+    modifier onlyAdmin() {
+        require(isAdmin[msg.sender], "Only admin");
+        _;
+    }
+
+    constructor(string memory _tokenName, string memory _tokenSymbol) ERC721(_tokenName, _tokenSymbol) {
+        isAdmin[msg.sender] = true;
+    }
 }
