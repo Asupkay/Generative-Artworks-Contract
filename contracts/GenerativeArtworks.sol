@@ -93,7 +93,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         isMintWhitelisted[_address] = false;
     }
 
-    function lockPiece(uint256 pieceId) public onlyAdmin onlyUnlocked(pieceId) {
+    function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) {
         pieces[pieceId].locked = true;
     }
 
