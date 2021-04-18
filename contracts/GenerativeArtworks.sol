@@ -57,7 +57,7 @@ contract GenerativeArtworks is ERC721Enumerable {
     }
     
     function mint(address _to, uint256 _pieceId, address _by) external returns (uint256 _tokenId) {
-        require(isMintWhitelisted[msg.sender], "Must be whitelisted to mint directly.");
+        require(isMintWhitelisted[msg.sender] || isAdmin[msg.sender], "Must be whitelisted to mint directly.");
         require(pieces[_pieceId].currentPrints + 1 <= pieces[_pieceId].maxPrints, "Must not exceed max invocations");
         require(pieces[_pieceId].active || isAdmin[_by], "Piece must exist and be active");
         require(pieces[_pieceId].paused || isAdmin[_by], "Purchasing prints of this piece are paused");
