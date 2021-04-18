@@ -36,14 +36,16 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(bytes32 => uint256) public hashToPrintId;
     
     mapping(address => bool) public isMintWhitelisted;
+    
+    uint256 public nextPieceId = 0;
 
-    modifier onlyValidPrintId(uint256 _printId) {
-        require(_exists(_printId), "Print ID does not exist");
+    modifier onlyValidPrintId(uint256 printId) {
+        require(_exists(printId), "Print ID does not exist");
         _;
     }
 
-    modifier onlyUnlocked(uint256 _pieceId) {
-        require(!pieces[_pieceId].locked, "Only if unlocked");
+    modifier onlyUnlocked(uint256 pieceId) {
+        require(!pieces[pieceId].locked, "Only if unlocked");
         _;
     }
 
@@ -52,31 +54,87 @@ contract GenerativeArtworks is ERC721Enumerable {
         _;
     }
 
-    constructor(string memory _tokenName, string memory _tokenSymbol) ERC721(_tokenName, _tokenSymbol) {
+    constructor(string memory tokenName, string memory tokenSymbol) ERC721(tokenName, tokenSymbol) {
         isAdmin[msg.sender] = true;
     }
     
-    function mint(address _to, uint256 _pieceId, address _by) external returns (uint256 _tokenId) {
+    function mint(address to, uint256 pieceId, address by) external returns (uint256) {
         require(isMintWhitelisted[msg.sender] || isAdmin[msg.sender], "Must be whitelisted to mint directly.");
-        require(pieces[_pieceId].currentPrints + 1 <= pieces[_pieceId].maxPrints, "Must not exceed max invocations");
-        require(pieces[_pieceId].active || isAdmin[_by], "Piece must exist and be active");
-        require(pieces[_pieceId].paused || isAdmin[_by], "Purchasing prints of this piece are paused");
+        require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Must not exceed max invocations");
+        require(pieces[pieceId].active || isAdmin[by], "Piece must exist and be active");
+        require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
 
-        uint256 tokenId = _mintToken(_to, _pieceId);
-
-        return tokenId;
+        return _mintToken(to, pieceId);
     }
 
-    function _mintToken(address _to, uint256 _pieceId) internal returns (uint256 _tokenId) {
-        uint256 printIdToBe = (_pieceId * ONE_MILLION) + pieces[_pieceId].currentPrints;
-        pieces[_pieceId].currentPrints = pieces[_pieceId].currentPrints + 1;
+    function _mintToken(address to, uint256 pieceId) internal returns (uint256) {
+        uint256 printIdToBe = (pieceId * ONE_MILLION) + pieces[pieceId].currentPrints;
+        pieces[pieceId].currentPrints = pieces[pieceId].currentPrints + 1;
 
-        bytes32 hash = keccak256(abi.encodePacked(pieces[_pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
+        bytes32 hash = keccak256(abi.encodePacked(pieces[pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
         printIdToHash[printIdToBe] = hash;
         hashToPrintId[hash] = printIdToBe;
 
-        emit Mint(_to, printIdToBe, _pieceId);
+        _safeMint(to, printIdToBe);
+
+        printIdToPieceId[printIdToBe] = pieceId;
+        pieceIdToPrintIds[pieceId].push(printIdToBe);
+
+        emit Mint(to, printIdToBe, pieceId);
 
         return printIdToBe;
     }
+
+    function addMintWhitelisted(address _address) external onlyAdmin {
+        isMintWhitelisted[_address] = true;
+    }
+
+    function removeMintWhitelisted(address _address) external onlyAdmin {
+        isMintWhitelisted[_address] = false;
+    }
+
+    function lockPiece(uint256 pieceId) public onlyAdmin onlyUnlocked(pieceId) {
+        pieces[pieceId].locked = true;
+    }
+
+    function togglePieceIsActive(uint256 pieceId) external onlyAdmin {
+        pieces[pieceId].active = !pieces[pieceId].active;
+    }
+
+    function togglePieceIsPaused(uint256 pieceId) external onlyAdmin {
+        pieces[pieceId].paused = !pieces[pieceId].paused;
+    }
+
+    function addPiece(string memory pieceName) external onlyAdmin {
+        uint256 pieceId = nextPieceId;
+        pieces[pieceId].name = pieceName;
+        pieces[pieceId].paused = true;
+        
+        nextPieceId = nextPieceId + 1;
+    }
+
+    function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin {
+        pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
+    }
+
+    function updatePieceName(uint256 pieceId, string memory pieceName) external onlyAdmin onlyUnlocked(pieceId) {
+        pieces[pieceId].name = pieceName;    
+    }
+
+    function updatePieceDescription(uint256 pieceId, string memory pieceDescription) external onlyAdmin {
+        pieces[pieceId].description = pieceDescription;    
+    }
+
+    function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin {
+        require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Can only increase max prints if piece is unlocked");
+        require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be more than current prints");
+        require(maxPrints <= ONE_MILLION, "Max prints cannot exceed 1 million");
+        pieces[pieceId].maxPrints = maxPrints;    
+    }
+
+    function updateProjectScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin {
+       pieces[pieceId].script = script; 
+    }
+
+    
 }
