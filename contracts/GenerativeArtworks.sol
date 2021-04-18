@@ -64,10 +64,10 @@ contract GenerativeArtworks is ERC721Enumerable {
         require(pieces[pieceId].active || isAdmin[by], "Piece must exist and be active");
         require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
 
-        return _mintToken(to, pieceId);
+        return _mintPrint(to, pieceId);
     }
 
-    function _mintToken(address to, uint256 pieceId) internal returns (uint256) {
+    function _mintPrint(address to, uint256 pieceId) internal returns (uint256) {
         uint256 printIdToBe = (pieceId * ONE_MILLION) + pieces[pieceId].currentPrints;
         pieces[pieceId].currentPrints = pieces[pieceId].currentPrints + 1;
 
@@ -132,8 +132,12 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].maxPrints = maxPrints;    
     }
 
-    function updateProjectScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin {
-       pieces[pieceId].script = script; 
+    function updatePieceScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin {
+        pieces[pieceId].script = script; 
+    }
+
+    function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin {
+        pieces[pieceId].license = pieceLicense;
     }
     
     function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_) {
