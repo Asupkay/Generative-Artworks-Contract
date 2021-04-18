@@ -155,6 +155,10 @@ contract GenerativeArtworks is ERC721Enumerable {
         paused_ = pieces[pieceId].paused;
     }
 
+    function pieceScript(uint256 pieceId) view external returns (string memory) {
+        return pieces[pieceId].script;
+    }
+
     function pieceShowAllPrints(uint pieceId) external view returns (uint256[] memory) {
         return pieceIdToPrintIds[pieceId];
     }
