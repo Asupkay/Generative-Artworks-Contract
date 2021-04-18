@@ -140,18 +140,15 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].license = pieceLicense;
     }
     
-    function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_) {
+    function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_, uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool paused_, bool locked_) {
         pieceName_ = pieces[pieceId].name;
         description_ = pieces[pieceId].description;
         license_ = pieces[pieceId].license;
-    }
-
-    function piecePrintInfo(uint256 pieceId) view external returns (uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool locked_, bool paused_) {
         pricePerPrintInWei_ = pieceIdToPricePerPrintInWei[pieceId];
         currentPrints_ = pieces[pieceId].currentPrints;
         maxPrints_ = pieces[pieceId].maxPrints;
-        active_ = pieces[pieceId].active;
         locked_ = pieces[pieceId].locked;
+        active_ = pieces[pieceId].active;
         paused_ = pieces[pieceId].paused;
     }
 

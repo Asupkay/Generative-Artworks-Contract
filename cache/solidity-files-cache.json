@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/alex/Documents/personal/Generative-Artworks-Contract/contracts/GenerativeArtworks.sol": {
-      "lastModificationDate": 1618788843281,
-      "contentHash": "14db9d52439597662cd964c3d40c1b33",
+      "lastModificationDate": 1618789381797,
+      "contentHash": "6efd713601401dbd566dbfa86ab5adc7",
       "sourceName": "contracts/GenerativeArtworks.sol",
       "solcConfig": {
         "version": "0.8.0",
