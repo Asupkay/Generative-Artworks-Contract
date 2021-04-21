@@ -2,8 +2,8 @@
   "_format": "hh-sol-cache-2",
   "files": {
     "/home/stephen/repos/Generative-Artworks-Contract/contracts/GenerativeArtworks.sol": {
-      "lastModificationDate": 1618977200523,
-      "contentHash": "9ab9de037a9cea775668823b518693a9",
+      "lastModificationDate": 1619022594557,
+      "contentHash": "b33584d00dec500a4f3b5fcd428c42e6",
       "sourceName": "contracts/GenerativeArtworks.sol",
       "solcConfig": {
         "version": "0.8.0",
@@ -433,8 +433,8 @@
       ]
     },
     "/home/stephen/repos/Generative-Artworks-Contract/contracts/GenerativeArtworksPayable.sol": {
-      "lastModificationDate": 1618978594141,
-      "contentHash": "72c21d2e175f6de1967415bf4ccc2fdb",
+      "lastModificationDate": 1619018541027,
+      "contentHash": "6e8129712bff42a16f6a93521761fd59",
       "sourceName": "contracts/GenerativeArtworksPayable.sol",
       "solcConfig": {
         "version": "0.8.0",
