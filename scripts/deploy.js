@@ -1,9 +1,15 @@
 async function main() {
   // We get the contract to deploy
-  const Contract = await ethers.getContractFactory("GenerativeArtworks");
-  const contract = await Contract.deploy("Generative Artworks", "GA");
+  const MainContract = await ethers.getContractFactory("GenerativeArtworks");
+  const mainContract = await MainContract.deploy("Generative Artworks", "GA");
 
-  console.log("Contract deployed to:", contract.address);
+  console.log("Main contract deployed to: ", mainContract.address);
+
+  const PaymentContract = await ethers.getContractFactory("GenerativeArtworksPayable");
+  const paymentContract = await PaymentContract.deploy(mainContract.address);
+
+  console.log("Payment contract deployed to: " + paymentContract.address);
+
 }
 
 main()
