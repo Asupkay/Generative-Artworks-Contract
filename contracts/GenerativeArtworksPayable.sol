@@ -6,6 +6,9 @@ contract GenerativeArtworksERC721 {
   mapping(uint256 => uint256) public pieceIdToPricePerPrintInWei;
   mapping(address => bool) public isAdmin;
 
+  function getAdditionalPayeesForPieceId(uint256 pieceId) external view returns (address[] memory) {}
+  function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view returns (uint256) {}
+
   function mint(address to, uint256 pieceId, address by) external returns (uint256) {}
 }
 
@@ -42,8 +45,19 @@ contract GenerativeArtworksPayable {
       // Track that "by" has minted "pieceId"
       hasMinted[pieceId][by] = true;
 
+      // Pay to additional payees
+      uint256 amountPaidOut = 0;
+      uint256 amountToPay = 0;
+      uint256 i = 0;
+      address[] memory additionalPayees = mintContract.getAdditionalPayeesForPieceId(pieceId);
+      for (i = 0; i < additionalPayees.length; i++) {
+        amountToPay = msg.value / 100 * mintContract.getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(pieceId, additionalPayees[i]);
+        payable(additionalPayees[i]).transfer(amountToPay);
+        amountPaidOut = amountPaidOut + amountToPay;
+      }
+
       // Pay to generative artworks wallet
-      generativeArtworksWallet.transfer(msg.value);
+      generativeArtworksWallet.transfer(msg.value - amountPaidOut);
 
       return newPrintId;
 	}

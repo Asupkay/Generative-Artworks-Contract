@@ -37,6 +37,9 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(bytes32 => uint256) public hashToPrintId;
     
     mapping(address => bool) public isMintWhitelisted;
+
+    mapping(uint256 => address[]) public pieceIdToAdditionalPayees;
+    mapping(uint256 => mapping(address => uint256)) public pieceIdToAdditionalPayeeToPercentage;
     
     uint256 public nextPieceId = 0;
 
@@ -160,4 +163,32 @@ contract GenerativeArtworks is ERC721Enumerable {
     function pieceShowAllPrints(uint pieceId) external view returns (uint256[] memory) {
         return pieceIdToPrintIds[pieceId];
     }
+
+    function updateAdditionalPayee(uint256 pieceId, address additionalPayeeAddress, uint256 additionalPayeePercentage) external onlyAdmin {
+        require(additionalPayeePercentage <= 100, "Percentage must be <= 100"); // TODO ensure total percentages <= 100
+        uint i;
+        bool found;
+        uint totalPercentage = 0;
+        for (i = 0; i < pieceIdToAdditionalPayees[pieceId].length; i++) {
+            if (pieceIdToAdditionalPayees[pieceId][i] == additionalPayeeAddress) {
+                found = true;
+            } else {
+                totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][pieceIdToAdditionalPayees[pieceId][i]];
+            }
+        }
+        require(totalPercentage + additionalPayeePercentage <= 100, "Total additional payee percentage must be <= 100");
+        if (!found) {
+            pieceIdToAdditionalPayees[pieceId].push(additionalPayeeAddress);
+        }
+        pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress] = additionalPayeePercentage;
+    }
+
+    function getAdditionalPayeesForPieceId(uint256 pieceId) external view returns (address[] memory) {
+        return pieceIdToAdditionalPayees[pieceId];
+    }
+
+    function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view returns (uint256) {
+        return pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress];
+    }
+    
 }
