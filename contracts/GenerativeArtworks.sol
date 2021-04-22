@@ -110,12 +110,13 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
-    function addPiece(string memory pieceName) external onlyAdmin {
+    function addPiece(string memory pieceName) external onlyAdmin returns (uint256) {
         uint256 pieceId = nextPieceId;
         pieces[pieceId].name = pieceName;
         pieces[pieceId].paused = true;
         
         nextPieceId = nextPieceId + 1;
+        return pieceId;
     }
 
     function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin onlyValidPieceId(pieceId) {
