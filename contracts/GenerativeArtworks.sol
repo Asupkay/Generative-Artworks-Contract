@@ -144,7 +144,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].license = pieceLicense;
     }
 
-    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin() onlyValidPieceId(pieceId) {
+    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].baseURI = newBaseURI;
     }
     
