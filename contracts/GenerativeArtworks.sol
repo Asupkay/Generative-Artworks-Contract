@@ -165,7 +165,7 @@ contract GenerativeArtworks is ERC721Enumerable {
     }
 
     function updateAdditionalPayee(uint256 pieceId, address additionalPayeeAddress, uint256 additionalPayeePercentage) external onlyAdmin {
-        require(additionalPayeePercentage <= 100, "Percentage must be <= 100"); // TODO ensure total percentages <= 100
+        require(additionalPayeePercentage <= 100, "Percentage must be <= 100");
         uint i;
         bool found;
         uint totalPercentage = 0;
