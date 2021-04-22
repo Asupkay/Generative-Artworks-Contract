@@ -169,11 +169,13 @@ contract GenerativeArtworks is ERC721Enumerable {
         uint i;
         bool found;
         uint totalPercentage = 0;
+        address currentPayeeAddress;
         for (i = 0; i < pieceIdToAdditionalPayees[pieceId].length; i++) {
-            if (pieceIdToAdditionalPayees[pieceId][i] == additionalPayeeAddress) {
+            currentPayeeAddress = pieceIdToAdditionalPayees[pieceId][i];
+            if (currentPayeeAddress == additionalPayeeAddress) {
                 found = true;
             } else {
-                totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][pieceIdToAdditionalPayees[pieceId][i]];
+                totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][currentPayeeAddress];
             }
         }
         require(totalPercentage + additionalPayeePercentage <= 100, "Total additional payee percentage must be <= 100");
