@@ -110,7 +110,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
-    function addPiece(string memory name, string memory description, string memory license, string memory baseURI, uint256 maxPrints) external onlyAdmin returns (uint256) {
+    function addPiece(string memory name, string memory description, string memory license, string memory baseURI, uint256 maxPrints, string memory script, uint256 pricePerPrintInWei) external onlyAdmin returns (uint256) {
         uint256 pieceId = nextPieceId;
         pieces[pieceId] = Piece({
             name: name,
@@ -119,11 +119,12 @@ contract GenerativeArtworks is ERC721Enumerable {
             baseURI: baseURI,
             currentPrints: 0,
             maxPrints: maxPrints,
-            script: "",
+            script: script,
             active: false,
             locked: false,
             paused: true
         });
+        pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
         
         nextPieceId = nextPieceId + 1;
         return pieceId;
