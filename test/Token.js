@@ -7,7 +7,6 @@ describe("Token contract", () => {
   let addr2;
   let addrs;
 
-
   beforeEach(async () => {
     const Token = await ethers.getContractFactory("GenerativeArtworks");
     [owner, addr1, addr2, ...addrs] = await ethers.getSigners();
