@@ -39,6 +39,11 @@ contract GenerativeArtworks is ERC721Enumerable {
     
     uint256 public nextPieceId = 0;
 
+    modifier onlyValidPieceId(uint256 pieceId) {
+        require(pieceId >= 0 && pieceId < nextPieceId, "Piece ID does not exist");
+        _;
+    }
+
     modifier onlyValidPrintId(uint256 printId) {
         require(_exists(printId), "Print ID does not exist");
         _;
@@ -58,10 +63,10 @@ contract GenerativeArtworks is ERC721Enumerable {
         isAdmin[msg.sender] = true;
     }
     
-    function mint(address to, uint256 pieceId, address by) external returns (uint256) {
+    function mint(address to, uint256 pieceId, address by) external onlyValidPieceId(pieceId) returns (uint256) {
         require(isMintAllowlisted[msg.sender] || isAdmin[msg.sender], "Must be allowlisted to mint directly.");
         require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Must not exceed max invocations");
-        require(pieces[pieceId].active || isAdmin[by], "Piece must exist and be active");
+        require(pieces[pieceId].active || isAdmin[by], "Piece must be active");
         require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
 
         return _mintPrint(to, pieceId);
@@ -92,15 +97,15 @@ contract GenerativeArtworks is ERC721Enumerable {
         isMintAllowlisted[_address] = false;
     }
 
-    function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) {
+    function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) onlyValidPieceId(pieceId) {
         pieces[pieceId].locked = true;
     }
 
-    function togglePieceIsActive(uint256 pieceId) external onlyAdmin {
+    function togglePieceIsActive(uint256 pieceId) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].active = !pieces[pieceId].active;
     }
 
-    function togglePieceIsPaused(uint256 pieceId) external onlyAdmin {
+    function togglePieceIsPaused(uint256 pieceId) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
@@ -112,34 +117,34 @@ contract GenerativeArtworks is ERC721Enumerable {
         nextPieceId = nextPieceId + 1;
     }
 
-    function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin {
+    function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin onlyValidPieceId(pieceId) {
         pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
     }
 
-    function updatePieceName(uint256 pieceId, string memory pieceName) external onlyAdmin onlyUnlocked(pieceId) {
+    function updatePieceName(uint256 pieceId, string memory pieceName) external onlyAdmin onlyUnlocked(pieceId) onlyValidPieceId(pieceId) {
         pieces[pieceId].name = pieceName;    
     }
 
-    function updatePieceDescription(uint256 pieceId, string memory pieceDescription) external onlyAdmin {
+    function updatePieceDescription(uint256 pieceId, string memory pieceDescription) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].description = pieceDescription;    
     }
 
-    function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin {
+    function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin onlyValidPieceId(pieceId) {
         require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Can only increase max prints if piece is unlocked");
         require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be more than current prints");
         require(maxPrints <= ONE_MILLION, "Max prints cannot exceed 1 million");
         pieces[pieceId].maxPrints = maxPrints;    
     }
 
-    function updatePieceScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin {
+    function updatePieceScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].script = script; 
     }
 
-    function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin {
+    function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].license = pieceLicense;
     }
 
-    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin() {
+    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].baseURI = newBaseURI;
     }
     
