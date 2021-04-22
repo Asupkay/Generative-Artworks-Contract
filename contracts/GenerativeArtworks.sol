@@ -5,7 +5,6 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 
 contract GenerativeArtworks is ERC721Enumerable {
-
     event Mint(
         address indexed _to,
         uint256 indexed _printId,
@@ -16,6 +15,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         string name;
         string description;
         string license;
+        string baseURI;
         uint256 currentPrints;
         uint256 maxPrints;
         string script;
@@ -34,9 +34,8 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(uint256 => uint256) public printIdToPieceId;
     mapping(uint256 => uint256[]) internal pieceIdToPrintIds;
     mapping(uint256 => bytes32) public printIdToHash;
-    mapping(bytes32 => uint256) public hashToPrintId;
     
-    mapping(address => bool) public isMintWhitelisted;
+    mapping(address => bool) public isMintAllowlisted;
     
     uint256 public nextPieceId = 0;
 
@@ -60,7 +59,7 @@ contract GenerativeArtworks is ERC721Enumerable {
     }
     
     function mint(address to, uint256 pieceId, address by) external returns (uint256) {
-        require(isMintWhitelisted[msg.sender] || isAdmin[msg.sender], "Must be whitelisted to mint directly.");
+        require(isMintAllowlisted[msg.sender] || isAdmin[msg.sender], "Must be allowlisted to mint directly.");
         require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Must not exceed max invocations");
         require(pieces[pieceId].active || isAdmin[by], "Piece must exist and be active");
         require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
@@ -74,7 +73,6 @@ contract GenerativeArtworks is ERC721Enumerable {
 
         bytes32 hash = keccak256(abi.encodePacked(pieces[pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
         printIdToHash[printIdToBe] = hash;
-        hashToPrintId[hash] = printIdToBe;
 
         _safeMint(to, printIdToBe);
 
@@ -86,12 +84,12 @@ contract GenerativeArtworks is ERC721Enumerable {
         return printIdToBe;
     }
 
-    function addMintWhitelisted(address _address) external onlyAdmin {
-        isMintWhitelisted[_address] = true;
+    function addMintAllowlisted(address _address) external onlyAdmin {
+        isMintAllowlisted[_address] = true;
     }
 
-    function removeMintWhitelisted(address _address) external onlyAdmin {
-        isMintWhitelisted[_address] = false;
+    function removeMintAllowlisted(address _address) external onlyAdmin {
+        isMintAllowlisted[_address] = false;
     }
 
     function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) {
@@ -140,6 +138,10 @@ contract GenerativeArtworks is ERC721Enumerable {
     function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin {
         pieces[pieceId].license = pieceLicense;
     }
+
+    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin() {
+        pieces[pieceId].baseURI = newBaseURI;
+    }
     
     function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_, uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool paused_, bool locked_) {
         pieceName_ = pieces[pieceId].name;
@@ -159,5 +161,9 @@ contract GenerativeArtworks is ERC721Enumerable {
 
     function pieceShowAllPrints(uint pieceId) external view returns (uint256[] memory) {
         return pieceIdToPrintIds[pieceId];
+    }
+
+    function tokenURI(uint256 printId) public override view onlyValidPrintId(printId) returns (string memory) {
+        return string(abi.encodePacked(pieces[printIdToPieceId[printId]].baseURI, Strings.toString(printId)));
     }
 }
