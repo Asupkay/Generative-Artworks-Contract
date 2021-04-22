@@ -5,7 +5,6 @@ import '@openzeppelin/contracts/token/ERC721/ERC721.sol';
 import '@openzeppelin/contracts/token/ERC721/extensions/ERC721Enumerable.sol';
 
 contract GenerativeArtworks is ERC721Enumerable {
-
     event Mint(
         address indexed _to,
         uint256 indexed _printId,
@@ -16,6 +15,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         string name;
         string description;
         string license;
+        string baseURI;
         uint256 currentPrints;
         uint256 maxPrints;
         string script;
@@ -34,14 +34,16 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(uint256 => uint256) public printIdToPieceId;
     mapping(uint256 => uint256[]) internal pieceIdToPrintIds;
     mapping(uint256 => bytes32) public printIdToHash;
-    mapping(bytes32 => uint256) public hashToPrintId;
-    
-    mapping(address => bool) public isMintWhitelisted;
-
+    mapping(address => bool) public isMintAllowlisted;
     mapping(uint256 => address[]) public pieceIdToAdditionalPayees;
     mapping(uint256 => mapping(address => uint256)) public pieceIdToAdditionalPayeeToPercentage;
     
     uint256 public nextPieceId = 0;
+
+    modifier onlyValidPieceId(uint256 pieceId) {
+        require(pieceId >= 0 && pieceId < nextPieceId, "Piece ID does not exist");
+        _;
+    }
 
     modifier onlyValidPrintId(uint256 printId) {
         require(_exists(printId), "Print ID does not exist");
@@ -62,10 +64,10 @@ contract GenerativeArtworks is ERC721Enumerable {
         isAdmin[msg.sender] = true;
     }
     
-    function mint(address to, uint256 pieceId, address by) external returns (uint256) {
-        require(isMintWhitelisted[msg.sender] || isAdmin[msg.sender], "Must be whitelisted to mint directly.");
+    function mint(address to, uint256 pieceId, address by) external onlyValidPieceId(pieceId) returns (uint256) {
+        require(isMintAllowlisted[msg.sender] || isAdmin[msg.sender], "Must be allowlisted to mint directly.");
         require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Must not exceed max invocations");
-        require(pieces[pieceId].active || isAdmin[by], "Piece must exist and be active");
+        require(pieces[pieceId].active || isAdmin[by], "Piece must be active");
         require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
 
         return _mintPrint(to, pieceId);
@@ -77,7 +79,6 @@ contract GenerativeArtworks is ERC721Enumerable {
 
         bytes32 hash = keccak256(abi.encodePacked(pieces[pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
         printIdToHash[printIdToBe] = hash;
-        hashToPrintId[hash] = printIdToBe;
 
         _safeMint(to, printIdToBe);
 
@@ -89,23 +90,23 @@ contract GenerativeArtworks is ERC721Enumerable {
         return printIdToBe;
     }
 
-    function addMintWhitelisted(address _address) external onlyAdmin {
-        isMintWhitelisted[_address] = true;
+    function addMintAllowlisted(address _address) external onlyAdmin {
+        isMintAllowlisted[_address] = true;
     }
 
-    function removeMintWhitelisted(address _address) external onlyAdmin {
-        isMintWhitelisted[_address] = false;
+    function removeMintAllowlisted(address _address) external onlyAdmin {
+        isMintAllowlisted[_address] = false;
     }
 
-    function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) {
+    function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) onlyValidPieceId(pieceId) {
         pieces[pieceId].locked = true;
     }
 
-    function togglePieceIsActive(uint256 pieceId) external onlyAdmin {
+    function togglePieceIsActive(uint256 pieceId) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].active = !pieces[pieceId].active;
     }
 
-    function togglePieceIsPaused(uint256 pieceId) external onlyAdmin {
+    function togglePieceIsPaused(uint256 pieceId) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
@@ -117,31 +118,35 @@ contract GenerativeArtworks is ERC721Enumerable {
         nextPieceId = nextPieceId + 1;
     }
 
-    function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin {
+    function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin onlyValidPieceId(pieceId) {
         pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
     }
 
-    function updatePieceName(uint256 pieceId, string memory pieceName) external onlyAdmin onlyUnlocked(pieceId) {
+    function updatePieceName(uint256 pieceId, string memory pieceName) external onlyAdmin onlyUnlocked(pieceId) onlyValidPieceId(pieceId) {
         pieces[pieceId].name = pieceName;    
     }
 
-    function updatePieceDescription(uint256 pieceId, string memory pieceDescription) external onlyAdmin {
+    function updatePieceDescription(uint256 pieceId, string memory pieceDescription) external onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].description = pieceDescription;    
     }
 
-    function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin {
+    function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin onlyValidPieceId(pieceId) {
         require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Can only increase max prints if piece is unlocked");
         require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be more than current prints");
         require(maxPrints <= ONE_MILLION, "Max prints cannot exceed 1 million");
         pieces[pieceId].maxPrints = maxPrints;    
     }
 
-    function updatePieceScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin {
+    function updatePieceScript(uint256 pieceId, string memory script) external onlyUnlocked(pieceId) onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].script = script; 
     }
 
-    function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin {
+    function updatePieceLicense(uint256 pieceId, string memory pieceLicense) external onlyUnlocked(pieceId) onlyAdmin onlyValidPieceId(pieceId) {
         pieces[pieceId].license = pieceLicense;
+    }
+
+    function updatePieceBaseURI(uint256 pieceId, string memory newBaseURI) external onlyAdmin onlyValidPieceId(pieceId) {
+        pieces[pieceId].baseURI = newBaseURI;
     }
     
     function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_, uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool paused_, bool locked_) {
@@ -192,5 +197,8 @@ contract GenerativeArtworks is ERC721Enumerable {
     function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view returns (uint256) {
         return pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress];
     }
-    
+
+    function tokenURI(uint256 printId) public override view onlyValidPrintId(printId) returns (string memory) {
+        return string(abi.encodePacked(pieces[printIdToPieceId[printId]].baseURI, Strings.toString(printId)));
+    }
 }
