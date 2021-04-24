@@ -70,15 +70,10 @@ contract GenerativeArtworks is ERC721Enumerable {
         require(pieces[pieceId].active || isAdmin[by], "Piece not active");
         require(pieces[pieceId].paused || isAdmin[by], "Piece is paused");
 
-        return _mintPrint(to, pieceId);
-    }
-
-    function _mintPrint(address to, uint256 pieceId) internal returns (uint256) {
         uint256 printIdToBe = (pieceId * ONE_MILLION) + pieces[pieceId].currentPrints;
         pieces[pieceId].currentPrints = pieces[pieceId].currentPrints + 1;
 
-        bytes32 hash = keccak256(abi.encodePacked(pieces[pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
-        printIdToHash[printIdToBe] = hash;
+        printIdToHash[printIdToBe] = keccak256(abi.encodePacked(pieces[pieceId].currentPrints, block.number, blockhash(block.number - 1), msg.sender));
 
         _safeMint(to, printIdToBe);
 
@@ -90,20 +85,12 @@ contract GenerativeArtworks is ERC721Enumerable {
         return printIdToBe;
     }
 
-    function addMintAllowlisted(address _address) external onlyAdmin {
-        isMintAllowlisted[_address] = true;
+    function toggleMintAllowlisted(address _address) external onlyAdmin {
+        isMintAllowlisted[_address] = !isMintAllowlisted[_address];
     }
 
-    function removeMintAllowlisted(address _address) external onlyAdmin {
-        isMintAllowlisted[_address] = false;
-    }
-
-    function addAdmin(address _address) external onlyAdmin {
-        isAdmin[_address] = true;
-    }
-
-    function removeAdmin(address _address) external onlyAdmin {
-        isAdmin[_address] = false;
+    function toggleAdmin(address _address) external onlyAdmin {
+        isAdmin[_address] = !isAdmin[_address];
     }
 
     function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) onlyValidPieceId(pieceId) {
@@ -152,8 +139,8 @@ contract GenerativeArtworks is ERC721Enumerable {
 
     function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin onlyValidPieceId(pieceId) {
         require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Piece is locked");
-        require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be more than current prints");
-        require(maxPrints <= ONE_MILLION, "Max prints cannot exceed 1 million");
+        require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be > current prints");
+        require(maxPrints <= ONE_MILLION, "Max prints must be < 1 million");
         pieces[pieceId].maxPrints = maxPrints;    
     }
 
