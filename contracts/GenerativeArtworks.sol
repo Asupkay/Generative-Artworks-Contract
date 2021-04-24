@@ -94,6 +94,14 @@ contract GenerativeArtworks is ERC721Enumerable {
         isMintWhitelisted[_address] = false;
     }
 
+    function addAdmin(address _address) external onlyAdmin {
+        isAdmin[_address] = true;
+    }
+
+    function removeAdmin(address _address) external onlyAdmin {
+        isAdmin[_address] = false;
+    }
+
     function lockPiece(uint256 pieceId) external onlyAdmin onlyUnlocked(pieceId) {
         pieces[pieceId].locked = true;
     }
