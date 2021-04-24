@@ -26,60 +26,32 @@ describe("Token contract", () => {
   });
 
   describe("isMintWhitelisted", () => {
-    describe("AddMintWhitelisted", () => {
-      it("AddMintWhitelisted should add an address to isMintWhitelisted", async () => {
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.false;
-        tokenContract.addMintWhitelisted(owner.address);
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.true;
+    describe("toggleMintAllowlisted", () => {
+      it("toggleMintAllowlisted should add an address to isMintAllowlisted", async () => {
+        expect(await tokenContract.isMintAllowlisted(owner.address)).to.be.false;
+        tokenContract.toggleMintAllowlisted(owner.address);
+        expect(await tokenContract.isMintAllowlisted(owner.address)).to.be.true;
       });
 
-      it("AddMintWhitelisted should throw on non admin calls", async () => {
+      it("toggleMintWhitelisted should throw on non admin calls", async () => {
         await expect(
-          tokenContract.connect(addr1).addMintWhitelisted(addr1.address)
+          tokenContract.connect(addr1).toggleMintAllowlisted(addr1.address)
         ).to.be.revertedWith("Only admin");
       });
     })
-
-    describe("RemoveMintWhitelisted", () => {
-      it("RemoveMintWhitelisted should remove an address from isMintWhitelisted", async () => {
-        tokenContract.addMintWhitelisted(owner.address);
-        tokenContract.removeMintWhitelisted(owner.address);
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.false;
-      });
-
-      it("RemoveMintWhitelisted should throw on non admin calls", async () => {
-        await expect(
-          tokenContract.connect(addr1).removeMintWhitelisted(addr1.address)
-        ).to.be.revertedWith("Only admin");
-      });
-    });
   })
 
   describe("isAdmin", () => {
-    describe("addAdmin", () => {
-      it("AddAdmin should add an address to isAdmin", async () => {
+    describe("toggleAdmin", () => {
+      it("toggleAdmin should add an address to isAdmin", async () => {
         expect(await tokenContract.isAdmin(addr1.address)).to.be.false;
-        tokenContract.addAdmin(addr1.address);
+        tokenContract.toggleAdmin(addr1.address);
         expect(await tokenContract.isAdmin(addr1.address)).to.be.true;
       });
 
-      it("AddAdmin should throw on non admin calls", async () => {
+      it("ToggleAdmin should throw on non admin calls", async () => {
         await expect(
-          tokenContract.connect(addr1).addAdmin(addr1.address)
-        ).to.be.revertedWith("Only admin");
-      });
-    });
-
-    describe("removeAdmin", () => {
-      it("RemoveAdmin should remove an address from isAdmin", async () => {
-        tokenContract.addAdmin(addr1.address);
-        tokenContract.removeAdmin(addr1.address);
-        expect(await tokenContract.isMintWhitelisted(addr1.address)).to.be.false;
-      });
-
-      it("RemoveAdmin should throw on non admin calls", async () => {
-        await expect(
-          tokenContract.connect(addr1).removeAdmin(addr1.address)
+          tokenContract.connect(addr1).toggleAdmin(addr1.address)
         ).to.be.revertedWith("Only admin");
       });
     });
