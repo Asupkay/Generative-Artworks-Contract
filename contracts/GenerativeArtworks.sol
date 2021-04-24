@@ -65,10 +65,10 @@ contract GenerativeArtworks is ERC721Enumerable {
     }
     
     function mint(address to, uint256 pieceId, address by) external onlyValidPieceId(pieceId) returns (uint256) {
-        require(isMintAllowlisted[msg.sender] || isAdmin[msg.sender], "Must be allowlisted to mint directly.");
-        require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Must not exceed max invocations");
-        require(pieces[pieceId].active || isAdmin[by], "Piece must be active");
-        require(pieces[pieceId].paused || isAdmin[by], "Purchasing prints of this piece are paused");
+        require(isMintAllowlisted[msg.sender] || isAdmin[msg.sender], "Not allowlisted");
+        require(pieces[pieceId].currentPrints + 1 <= pieces[pieceId].maxPrints, "Exceeds max invocations");
+        require(pieces[pieceId].active || isAdmin[by], "Piece not active");
+        require(pieces[pieceId].paused || isAdmin[by], "Piece is paused");
 
         return _mintPrint(to, pieceId);
     }
@@ -118,12 +118,24 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
-    function addPiece(string memory pieceName) external onlyAdmin {
+    function addPiece(string memory name, string memory description, string memory license, string memory baseURI, uint256 maxPrints, string memory script, uint256 pricePerPrintInWei) external onlyAdmin returns (uint256) {
         uint256 pieceId = nextPieceId;
-        pieces[pieceId].name = pieceName;
-        pieces[pieceId].paused = true;
+        pieces[pieceId] = Piece({
+            name: name,
+            description: description,
+            license: license,
+            baseURI: baseURI,
+            currentPrints: 0,
+            maxPrints: maxPrints,
+            script: script,
+            active: false,
+            locked: false,
+            paused: true
+        });
+        pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
         
         nextPieceId = nextPieceId + 1;
+        return pieceId;
     }
 
     function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin onlyValidPieceId(pieceId) {
@@ -139,7 +151,7 @@ contract GenerativeArtworks is ERC721Enumerable {
     }
 
     function updatePieceMaxPrints(uint256 pieceId, uint256 maxPrints) external onlyAdmin onlyValidPieceId(pieceId) {
-        require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Can only increase max prints if piece is unlocked");
+        require(!pieces[pieceId].locked || maxPrints < pieces[pieceId].maxPrints, "Piece is locked");
         require(maxPrints > pieces[pieceId].currentPrints, "Max prints must be more than current prints");
         require(maxPrints <= ONE_MILLION, "Max prints cannot exceed 1 million");
         pieces[pieceId].maxPrints = maxPrints;    
@@ -191,7 +203,7 @@ contract GenerativeArtworks is ERC721Enumerable {
                 totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][currentPayeeAddress];
             }
         }
-        require(totalPercentage + additionalPayeePercentage <= 100, "Total additional payee percentage must be <= 100");
+        require(totalPercentage + additionalPayeePercentage <= 100, "Total percentage must be <= 100");
         if (!found) {
             pieceIdToAdditionalPayees[pieceId].push(additionalPayeeAddress);
         }

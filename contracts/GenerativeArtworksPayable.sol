@@ -36,7 +36,7 @@ contract GenerativeArtworksPayable {
         }
 
         // Check if the right value was sent with the transaction
-        require(msg.value == mintContract.pieceIdToPricePerPrintInWei(pieceId), "Incorrect payment amount");
+        require(msg.value == mintContract.pieceIdToPricePerPrintInWei(pieceId), "Incorrect payment amount or invalid piece ID");
 
         // Mint on other contract
         uint256 newPrintId = mintContract.mint(mintTo, pieceId, by);
