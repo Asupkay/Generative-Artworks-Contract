@@ -35,7 +35,6 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(uint256 => uint256[]) internal pieceIdToPrintIds;
     mapping(uint256 => bytes32) public printIdToHash;
     mapping(address => bool) public isMintAllowlisted;
-
     
     uint256 public nextPieceId = 0;
 
