@@ -77,7 +77,7 @@ describe("Token contract", () => {
 
     describe("PieceDetails", () => {
       it("should be able to get the added piece", async () => {
-        expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal('Piece1,This is piece one,NIFTY,100,0,64,false,true,false');
+        expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal("Piece1,This is piece one,NIFTY,100,0,64,false,true,false");
       });
 
       it("should not be able to get an invalid piece id", async () => {
@@ -87,11 +87,25 @@ describe("Token contract", () => {
 
     describe("PieceScript", () => {
       it("should be able to get the piece script", async () => {
-        expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal('nice');
+        expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal("nice");
       });
 
       it("should not be able to get an invalid piece id", async () => {
         await expect(tokenContract.connect(addr1).pieceScript(1)).to.be.revertedWith("Piece ID does not exist");
+      });
+    });
+
+    describe("UpdatePieceScript", () => {
+      it("should be able to update the piece script", async () => {
+        expect((await tokenContract.pieceScript(0)).toString()).to.equal("nice");
+        await tokenContract.updatePieceScript(0, "test")
+        expect((await tokenContract.pieceScript(0)).toString()).to.equal("test");
+      });
+
+      it("should revert on not admin", async () => {
+        await expect(
+          tokenContract.connect(addr1).updatePieceScript(0, "test")
+        ).to.be.revertedWith("Only admin");
       });
     });
   })
