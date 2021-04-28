@@ -57,7 +57,7 @@ describe("Token contract", () => {
     });
   })
 
-  describe("addPiece", () => {
+  describe("Piece CRUD", () => {
     beforeEach(async () => {
       const name = "Piece1";
       const description = "This is piece one";
@@ -69,16 +69,30 @@ describe("Token contract", () => {
       await tokenContract.addPiece(name, description, license, baseURI, maxPrints, script, pricePerPrintInWei);
     });
 
-    it("should iterate the next piece id", async () => {
-      expect(await tokenContract.nextPieceId()).to.equal(1);
+    describe("Creating a piece", () => {
+      it("should iterate the next piece id", async () => {
+        expect(await tokenContract.nextPieceId()).to.equal(1);
+      });
     });
 
-    it("should be able to get the added piece", async () => {
-      expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal('Piece1,This is piece one,NIFTY,100,0,64,false,true,false');
+    describe("PieceDetails", () => {
+      it("should be able to get the added piece", async () => {
+        expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal('Piece1,This is piece one,NIFTY,100,0,64,false,true,false');
+      });
+
+      it("should not be able to get an invalid piece id", async () => {
+        await expect(tokenContract.connect(addr1).pieceDetails(1)).to.be.revertedWith("Piece ID does not exist");
+      });
     });
 
-    it("should be able to get the piece script", async () => {
-      expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal('nice');
+    describe("PieceScript", () => {
+      it("should be able to get the piece script", async () => {
+        expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal('nice');
+      });
+
+      it("should not be able to get an invalid piece id", async () => {
+        await expect(tokenContract.connect(addr1).pieceScript(1)).to.be.revertedWith("Piece ID does not exist");
+      });
     });
   })
 });
