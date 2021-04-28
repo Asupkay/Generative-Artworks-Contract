@@ -35,8 +35,7 @@ contract GenerativeArtworks is ERC721Enumerable {
     mapping(uint256 => uint256[]) internal pieceIdToPrintIds;
     mapping(uint256 => bytes32) public printIdToHash;
     mapping(address => bool) public isMintAllowlisted;
-    mapping(uint256 => address[]) public pieceIdToAdditionalPayees;
-    mapping(uint256 => mapping(address => uint256)) public pieceIdToAdditionalPayeeToPercentage;
+
     
     uint256 public nextPieceId = 0;
 
@@ -105,7 +104,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].paused = !pieces[pieceId].paused;
     }
 
-    function addPiece(string memory name, string memory description, string memory license, string memory baseURI, uint256 maxPrints, string memory script, uint256 pricePerPrintInWei) external onlyAdmin returns (uint256) {
+    function addPiece(string memory name, string memory description, string memory license, string memory baseURI, uint256 maxPrints, string memory script, uint256 pricePerPrintInWei) external onlyAdmin {
         uint256 pieceId = nextPieceId;
         pieces[pieceId] = Piece({
             name: name,
@@ -122,7 +121,6 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieceIdToPricePerPrintInWei[pieceId] = pricePerPrintInWei;
         
         nextPieceId = nextPieceId + 1;
-        return pieceId;
     }
 
     function updatePiecePricePerPrintInWei(uint256 pieceId, uint256 pricePerPrintInWei) external onlyAdmin onlyValidPieceId(pieceId) {
@@ -156,7 +154,7 @@ contract GenerativeArtworks is ERC721Enumerable {
         pieces[pieceId].baseURI = newBaseURI;
     }
     
-    function pieceDetails(uint256 pieceId) view external returns (string memory pieceName_, string memory description_, string memory license_, uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool paused_, bool locked_) {
+    function pieceDetails(uint256 pieceId) view external onlyValidPieceId(pieceId) returns(string memory pieceName_, string memory description_, string memory license_, uint256 pricePerPrintInWei_, uint256 currentPrints_, uint256 maxPrints_, bool active_, bool paused_, bool locked_) {
         pieceName_ = pieces[pieceId].name;
         description_ = pieces[pieceId].description;
         license_ = pieces[pieceId].license;
@@ -168,41 +166,12 @@ contract GenerativeArtworks is ERC721Enumerable {
         paused_ = pieces[pieceId].paused;
     }
 
-    function pieceScript(uint256 pieceId) view external returns (string memory) {
+    function pieceScript(uint256 pieceId) view external onlyValidPieceId(pieceId) returns (string memory) {
         return pieces[pieceId].script;
     }
 
-    function pieceShowAllPrints(uint pieceId) external view returns (uint256[] memory) {
+    function pieceShowAllPrints(uint pieceId) external view onlyValidPieceId(pieceId) returns (uint256[] memory) {
         return pieceIdToPrintIds[pieceId];
-    }
-
-    function updateAdditionalPayee(uint256 pieceId, address additionalPayeeAddress, uint256 additionalPayeePercentage) external onlyAdmin {
-        require(additionalPayeePercentage <= 100, "Percentage must be <= 100");
-        uint i;
-        bool found;
-        uint totalPercentage = 0;
-        address currentPayeeAddress;
-        for (i = 0; i < pieceIdToAdditionalPayees[pieceId].length; i++) {
-            currentPayeeAddress = pieceIdToAdditionalPayees[pieceId][i];
-            if (currentPayeeAddress == additionalPayeeAddress) {
-                found = true;
-            } else {
-                totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][currentPayeeAddress];
-            }
-        }
-        require(totalPercentage + additionalPayeePercentage <= 100, "Total percentage must be <= 100");
-        if (!found) {
-            pieceIdToAdditionalPayees[pieceId].push(additionalPayeeAddress);
-        }
-        pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress] = additionalPayeePercentage;
-    }
-
-    function getAdditionalPayeesForPieceId(uint256 pieceId) external view returns (address[] memory) {
-        return pieceIdToAdditionalPayees[pieceId];
-    }
-
-    function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view returns (uint256) {
-        return pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress];
     }
 
     function tokenURI(uint256 printId) public override view onlyValidPrintId(printId) returns (string memory) {

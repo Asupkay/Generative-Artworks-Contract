@@ -56,4 +56,29 @@ describe("Token contract", () => {
       });
     });
   })
+
+  describe("addPiece", () => {
+    beforeEach(async () => {
+      const name = "Piece1";
+      const description = "This is piece one";
+      const license = "NIFTY";
+      const baseURI = "http://test.com";
+      const maxPrints = ethers.BigNumber.from(64);
+      const script = "nice";
+      const pricePerPrintInWei = ethers.BigNumber.from(100);
+      await tokenContract.addPiece(name, description, license, baseURI, maxPrints, script, pricePerPrintInWei);
+    });
+
+    it("should iterate the next piece id", async () => {
+      expect(await tokenContract.nextPieceId()).to.equal(1);
+    });
+
+    it("should be able to get the added piece", async () => {
+      expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal('Piece1,This is piece one,NIFTY,100,0,64,false,true,false');
+    });
+
+    it("should be able to get the piece script", async () => {
+      expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal('nice');
+    });
+  })
 });
