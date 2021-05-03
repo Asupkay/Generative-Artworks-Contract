@@ -4,6 +4,7 @@ pragma solidity ^0.8.0;
 contract GenerativeArtworksERC721 {
     mapping(uint256 => uint256) public pieceIdToPricePerPrintInWei;
     mapping(address => bool) public isAdmin;
+    uint256 public nextPieceId = 0;
 
     function getAdditionalPayeesForPieceId(uint256 pieceId) external view returns (address[] memory) {}
     function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view returns (uint256) {}
@@ -17,9 +18,16 @@ contract GenerativeArtworksPayable {
     address payable public generativeArtworksWallet;
     mapping(uint256 => mapping(address => bool)) public hasMinted;
     mapping(uint256 => bool) public isLimited;
+    mapping(uint256 => address[]) public pieceIdToAdditionalPayees;
+    mapping(uint256 => mapping(address => uint256)) public pieceIdToAdditionalPayeeToPercentage;
 
     modifier onlyAdmin() {
         require(mintContract.isAdmin(msg.sender), "Only admin");
+        _;
+    }
+
+    modifier onlyValidPieceId(uint256 pieceId) {
+        require(pieceId >= 0 && pieceId < mintContract.nextPieceId(), "Piece ID does not exist");
         _;
     }
 
@@ -71,6 +79,35 @@ contract GenerativeArtworksPayable {
 
     function changePayableAddress(address payable payableAddress) external onlyAdmin {
         generativeArtworksWallet = payableAddress;
+    }
+
+    function updateAdditionalPayee(uint256 pieceId, address additionalPayeeAddress, uint256 additionalPayeePercentage) external onlyValidPieceId(pieceId) onlyAdmin {
+        require(additionalPayeePercentage <= 100, "Percentage must be <= 100");
+        uint i;
+        bool found;
+        uint totalPercentage = 0;
+        address currentPayeeAddress;
+        for (i = 0; i < pieceIdToAdditionalPayees[pieceId].length; i++) {
+            currentPayeeAddress = pieceIdToAdditionalPayees[pieceId][i];
+            if (currentPayeeAddress == additionalPayeeAddress) {
+                found = true;
+            } else {
+                totalPercentage += pieceIdToAdditionalPayeeToPercentage[pieceId][currentPayeeAddress];
+            }
+        }
+        require(totalPercentage + additionalPayeePercentage <= 100, "Total percentage must be <= 100");
+        if (!found) {
+            pieceIdToAdditionalPayees[pieceId].push(additionalPayeeAddress);
+        }
+        pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress] = additionalPayeePercentage;
+    }
+
+    function getAdditionalPayeesForPieceId(uint256 pieceId) external view onlyValidPieceId(pieceId) returns (address[] memory) {
+        return pieceIdToAdditionalPayees[pieceId];
+    }
+
+    function getAdditionalPayeePercentageForPieceIdAndAdditionalPayeeAddress(uint256 pieceId, address additionalPayeeAddress) external view onlyValidPieceId(pieceId) returns (uint256) {
+        return pieceIdToAdditionalPayeeToPercentage[pieceId][additionalPayeeAddress];
     }
 
 }

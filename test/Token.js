@@ -26,62 +26,59 @@ describe("Token contract", () => {
   });
 
   describe("isMintWhitelisted", () => {
-    describe("AddMintWhitelisted", () => {
-      it("AddMintWhitelisted should add an address to isMintWhitelisted", async () => {
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.false;
-        tokenContract.addMintWhitelisted(owner.address);
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.true;
+    describe("toggleMintAllowlisted", () => {
+      it("toggleMintAllowlisted should add an address to isMintAllowlisted", async () => {
+        expect(await tokenContract.isMintAllowlisted(owner.address)).to.be.false;
+        tokenContract.toggleMintAllowlisted(owner.address);
+        expect(await tokenContract.isMintAllowlisted(owner.address)).to.be.true;
       });
 
-      it("AddMintWhitelisted should throw on non admin calls", async () => {
+      it("toggleMintWhitelisted should throw on non admin calls", async () => {
         await expect(
-          tokenContract.connect(addr1).addMintWhitelisted(addr1.address)
+          tokenContract.connect(addr1).toggleMintAllowlisted(addr1.address)
         ).to.be.revertedWith("Only admin");
       });
     })
+  })
 
-    describe("RemoveMintWhitelisted", () => {
-      it("RemoveMintWhitelisted should remove an address from isMintWhitelisted", async () => {
-        tokenContract.addMintWhitelisted(owner.address);
-        tokenContract.removeMintWhitelisted(owner.address);
-        expect(await tokenContract.isMintWhitelisted(owner.address)).to.be.false;
+  describe("isAdmin", () => {
+    describe("toggleAdmin", () => {
+      it("toggleAdmin should add an address to isAdmin", async () => {
+        expect(await tokenContract.isAdmin(addr1.address)).to.be.false;
+        tokenContract.toggleAdmin(addr1.address);
+        expect(await tokenContract.isAdmin(addr1.address)).to.be.true;
       });
 
-      it("RemoveMintWhitelisted should throw on non admin calls", async () => {
+      it("ToggleAdmin should throw on non admin calls", async () => {
         await expect(
-          tokenContract.connect(addr1).removeMintWhitelisted(addr1.address)
+          tokenContract.connect(addr1).toggleAdmin(addr1.address)
         ).to.be.revertedWith("Only admin");
       });
     });
   })
 
-  describe("isAdmin", () => {
-    describe("addAdmin", () => {
-      it("AddAdmin should add an address to isAdmin", async () => {
-        expect(await tokenContract.isAdmin(addr1.address)).to.be.false;
-        tokenContract.addAdmin(addr1.address);
-        expect(await tokenContract.isAdmin(addr1.address)).to.be.true;
-      });
-
-      it("AddAdmin should throw on non admin calls", async () => {
-        await expect(
-          tokenContract.connect(addr1).addAdmin(addr1.address)
-        ).to.be.revertedWith("Only admin");
-      });
+  describe("addPiece", () => {
+    beforeEach(async () => {
+      const name = "Piece1";
+      const description = "This is piece one";
+      const license = "NIFTY";
+      const baseURI = "http://test.com";
+      const maxPrints = ethers.BigNumber.from(64);
+      const script = "nice";
+      const pricePerPrintInWei = ethers.BigNumber.from(100);
+      await tokenContract.addPiece(name, description, license, baseURI, maxPrints, script, pricePerPrintInWei);
     });
 
-    describe("removeAdmin", () => {
-      it("RemoveAdmin should remove an address from isAdmin", async () => {
-        tokenContract.addAdmin(addr1.address);
-        tokenContract.removeAdmin(addr1.address);
-        expect(await tokenContract.isMintWhitelisted(addr1.address)).to.be.false;
-      });
+    it("should iterate the next piece id", async () => {
+      expect(await tokenContract.nextPieceId()).to.equal(1);
+    });
 
-      it("RemoveAdmin should throw on non admin calls", async () => {
-        await expect(
-          tokenContract.connect(addr1).removeAdmin(addr1.address)
-        ).to.be.revertedWith("Only admin");
-      });
+    it("should be able to get the added piece", async () => {
+      expect((await tokenContract.connect(addr1).pieceDetails(0)).toString()).to.equal('Piece1,This is piece one,NIFTY,100,0,64,false,true,false');
+    });
+
+    it("should be able to get the piece script", async () => {
+      expect((await tokenContract.connect(addr1).pieceScript(0)).toString()).to.equal('nice');
     });
   })
 });
